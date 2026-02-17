@@ -1,0 +1,13 @@
+{
+  "name": "woocommerce-x402",
+  "version": "1.0.0",
+  "description": "WooCommerce plugin for x402 Agent Gateway",
+  "scripts": {
+    "release": "release-it",
+    "pack": "./scripts/pack-plugin.sh"
+  },
+  "devDependencies": {
+    "release-it": "^17.11.0"
+  },
+  "private": true
+}

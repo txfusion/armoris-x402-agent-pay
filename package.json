@@ -1,6 +1,10 @@
 {
   "name": "woocommerce-x402",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/txfusion/gateway-agent-pay.git"
+  },
   "description": "WooCommerce plugin for x402 Agent Gateway",
   "scripts": {
     "release": "release-it",

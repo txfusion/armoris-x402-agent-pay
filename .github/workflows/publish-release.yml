@@ -1,0 +1,48 @@
+name: Publish Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    if: startsWith(github.event.head_commit.message, 'chore: release v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Get Version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Git Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag v${{ steps.version.outputs.VERSION }}
+          git push origin v${{ steps.version.outputs.VERSION }}
+
+      - name: Make scripts executable
+        run: chmod +x scripts/pack-plugin.sh
+
+      - name: Pack Plugin
+        run: ./scripts/pack-plugin.sh
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          files: woocommerce-x402.zip
+          generate_release_notes: true

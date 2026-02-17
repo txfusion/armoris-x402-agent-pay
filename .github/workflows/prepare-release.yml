@@ -1,0 +1,72 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      increment:
+        description: 'Version increment'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump Version
+        id: bump
+        run: |
+          # Bump package.json version
+          npm version ${{ inputs.increment }} --no-git-tag-version
+          
+          # Get new version
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Bump PHP file version
+          node scripts/bump-version.js $VERSION
+
+      - name: Create Branch and PR
+        env:
+          VERSION: ${{ steps.bump.outputs.VERSION }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME="release/v$VERSION"
+          
+          # Create branch
+          git checkout -b $BRANCH_NAME
+          
+          # Stage and commit files
+          git add package.json woocommerce-x402/woocommerce-x402.php
+          git commit -m "chore: release v$VERSION"
+          
+          # Push branch
+          git push origin $BRANCH_NAME
+          
+          # Create Pull Request
+          gh pr create \
+            --title "chore: release v$VERSION" \
+            --body "Automated release PR for version v$VERSION. Merging this PR will trigger the release workflow." \
+            --base main \
+            --head $BRANCH_NAME

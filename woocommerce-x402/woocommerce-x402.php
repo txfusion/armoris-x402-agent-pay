@@ -1,11 +1,11 @@
 <?php
 /*
-Plugin Name: x402 GatewayAgentPay 
-Plugin URI: https://x402.com
+Plugin Name: x402 Armoris 
+Plugin URI: https://www.armoris.io/
 Description: Connects your WooCommerce store to the x402 Agent Payment Gateway. Adds metadata for AI agents and enables x402 payments.
 Version: 1.1.0
 Author: x402 Team
-Author URI: https://x402.com
+Author URI: https://www.armoris.io/
 License: MIT
 */
 
@@ -495,9 +495,14 @@ function x402_get_quote( $data ) {
     WC()->cart->calculate_totals();
 
     // 5. Build Response
+    // get_total() sometimes returns formatted string depending on settings, so we calculate raw float explicitly from parts.
+    $contents   = (float) WC()->cart->get_cart_contents_total();
+    $tax        = (float) WC()->cart->get_total_tax();
+    $shipping   = (float) WC()->cart->get_shipping_total();
+    
     $response = array(
-        'total' => WC()->cart->get_total( 'edit' ),
-        'contents_total' => WC()->cart->get_cart_contents_total(),
+        'total' => $contents + $tax + $shipping,
+        'contents_total' => $contents,
         'currency' => get_woocommerce_currency(),
         'tax_total' => WC()->cart->get_total_tax(),
         'shipping_total' => WC()->cart->get_shipping_total(),

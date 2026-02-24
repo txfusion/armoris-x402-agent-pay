@@ -1,12 +1,15 @@
 <?php
 /*
-Plugin Name: x402 Armoris 
+Plugin Name: Armoris x402 Agent Payment
 Plugin URI: https://www.armoris.io/
-Description: Connects your WooCommerce store to the x402 Agent Payment Gateway. Adds metadata for AI agents and enables x402 payments.
+Description: Connects your WooCommerce store to the Armoris x402 Agent Payment Gateway. Adds metadata for AI agents and enables on-chain USDC payments via the x402 protocol.
 Version: 0.1.0
 Author: Armoris Team
 Author URI: https://www.armoris.io/
-License: MIT
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: x402-agent-payment
+Domain Path: /languages
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -28,19 +31,19 @@ function x402_init_gateway_class() {
             $this->id = 'x402';
             $this->icon = ''; // TODO: Add icon functionality
             $this->has_fields = false;
-            $this->method_title = 'x402 Agent Payment';
-            $this->method_description = 'Accept payments from AI Agents via the x402 Protocol.';
+            $this->method_title = 'Armoris x402 Agent Payment';
+            $this->method_description = 'Accept payments from AI Agents via the x402 Protocol using USDC on-chain.';
 
             $this->init_form_fields();
             $this->init_settings();
 
-            $this->title = $this->get_option( 'title' );
-            $this->description = $this->get_option( 'description' );
-            $this->enabled = $this->get_option( 'enabled' );
-            
-            // Core Settings
-            $this->store_id = $this->get_option( 'store_id' );
-            $this->gateway_url = $this->get_option( 'gateway_url' );
+            // Hardcoded — not merchant-configurable
+            $this->title       = 'Pay with Agent (x402)';
+            $this->description = 'Complete payment using an AI Agent via the x402 protocol.';
+
+            $this->enabled    = $this->get_option( 'enabled' );
+            $this->store_id   = $this->get_option( 'store_id' );
+            $this->gateway_url = 'https://api.armoris.io';
 
             add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
         }
@@ -50,41 +53,22 @@ function x402_init_gateway_class() {
                 'enabled' => array(
                     'title'   => 'Enable/Disable',
                     'type'    => 'checkbox',
-                    'label'   => 'Enable x402 Agent Payments',
-                    'default' => 'yes'
-                ),
-                'title' => array(
-                    'title'       => 'Title',
-                    'type'        => 'text',
-                    'description' => 'This controls the title which the user sees during checkout.',
-                    'default'     => 'Pay with Agent (x402)',
-                    'desc_tip'    => true,
-                ),
-                'description' => array(
-                    'title'       => 'Description',
-                    'type'        => 'textarea',
-                    'description' => 'Payment method description that the customer will see on your checkout.',
-                    'default'     => 'Complete payment using an AI Agent via x402 protocol.',
+                    'label'   => 'Enable Armoris x402 Agent Payments',
+                    'default' => 'yes',
                 ),
                 'store_id' => array(
                     'title'       => 'Store ID',
                     'type'        => 'text',
-                    'description' => 'The Unique Store ID from your GatewayAgentPay  Dashboard.',
+                    'description' => 'The unique Store ID from your <a href="https://armoris.io/dashboard" target="_blank">Armoris Dashboard</a>.',
                     'default'     => '',
-                    'desc_tip'    => true,
-                ),
-                'gateway_url' => array(
-                    'title'       => 'Armoris API Gateway URL',
-                    'type'        => 'text',
-                    'description' => 'URL of the Armoris Gateway AgentPay  API (e.g., http://api.armoris.io/)',
-                    'default'     => 'http://api.armoris.io/', 
+                    'desc_tip'    => false,
                 ),
                 'client_secret' => array(
                     'title'       => 'Client Secret',
                     'type'        => 'password',
-                    'description' => 'A secret key shared between this store and the Agent Gateway. This is used to authenticate requests from the Gateway.',
+                    'description' => 'The secret key generated in your Armoris Dashboard. Used to authenticate requests from the Armoris Gateway to this store.',
                     'default'     => '',
-                    'desc_tip'    => true,
+                    'desc_tip'    => false,
                 ),
             );
         }
@@ -131,7 +115,7 @@ function x402_inject_agent_meta() {
     $gateway_url = ! empty( $settings['gateway_url'] ) ? esc_url( rtrim( $settings['gateway_url'], '/' ) ) : 'http://api.armoris.io/';
     
     // Construct the context URL (ensure leading slash on path if needed, but here we append to base)
-    $context_url = $gateway_url . '/agent/stores/' . $store_id . '/context';
+    $context_url = $gateway_url . '/proxy/context/' . $store_id;
 
     echo '<meta name="x402:store_id" content="' . $store_id . '" />' . "\n";
     echo '<meta name="x402:gateway_url" content="' . $gateway_url . '" />' . "\n";

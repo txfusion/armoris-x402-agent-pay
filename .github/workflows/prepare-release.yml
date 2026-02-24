@@ -12,6 +12,14 @@ on:
           - patch
           - minor
           - major
+      changelog:
+        description: |
+          Changelog entries (one per line). Prefix with type:
+            Added: New feature description
+            Changed: Something changed
+            Fixed: Bug that was fixed
+            Removed: Something removed
+        required: true
 
 jobs:
   prepare:
@@ -19,7 +27,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,13 +47,21 @@ jobs:
         run: |
           # Bump package.json version
           npm version ${{ inputs.increment }} --no-git-tag-version
-          
+
           # Get new version
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          
+
           # Bump PHP file version
           node scripts/bump-version.js $VERSION
+
+      - name: Update Changelog
+        env:
+          VERSION: ${{ steps.bump.outputs.VERSION }}
+          CHANGELOG: ${{ github.event.inputs.changelog }}
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          node scripts/update-changelog.js "$VERSION" "$DATE" "$CHANGELOG"
 
       - name: Create Branch and PR
         env:
@@ -53,20 +69,25 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH_NAME="release/v$VERSION"
-          
+
           # Create branch
           git checkout -b $BRANCH_NAME
-          
-          # Stage and commit files
-          git add package.json woocommerce-x402/woocommerce-x402.php
+
+          # Stage all modified files
+          git add \
+            package.json \
+            woocommerce-x402/woocommerce-x402.php \
+            woocommerce-x402/readme.txt \
+            woocommerce-x402/CHANGELOG.md
+
           git commit -m "chore: release v$VERSION"
-          
+
           # Push branch
           git push origin $BRANCH_NAME
-          
+
           # Create Pull Request
           gh pr create \
             --title "chore: release v$VERSION" \
-            --body "Automated release PR for version v$VERSION. Merging this PR will trigger the release workflow." \
+            --body "$(printf 'Automated release PR for **v%s**.\n\n### Changelog\n\n%s\n\nMerging this PR will trigger the publish workflow.' "$VERSION" "${{ github.event.inputs.changelog }}")" \
             --base main \
             --head $BRANCH_NAME

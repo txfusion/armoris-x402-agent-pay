@@ -231,6 +231,41 @@ function x402_get_active_currency() {
     return array( 'value' => get_woocommerce_currency() );
 }
 
+/**
+ * Display x402 Metadata as Read-Only in Admin Order View
+ */
+add_action( 'woocommerce_admin_order_data_after_billing_address', 'x402_display_admin_order_meta', 10, 1 );
+function x402_display_admin_order_meta( $order ) {
+    $tx_id = $order->get_meta( 'x402_transaction_id' );
+    $chain = $order->get_meta( 'chain' );
+    $wallet = $order->get_meta( 'walletAddress' );
+
+    if ( $tx_id || $chain || $wallet ) {
+        echo '<h3>Armoris x402 Details</h3>';
+        if ( $tx_id ) {
+            echo '<p><strong>Transaction ID:</strong> ' . esc_html( $tx_id ) . '</p>';
+        }
+        if ( $chain ) {
+            echo '<p><strong>Chain ID:</strong> ' . esc_html( $chain ) . '</p>';
+        }
+        if ( $wallet ) {
+            echo '<p><strong>Wallet Address:</strong> ' . esc_html( $wallet ) . '</p>';
+        }
+    }
+}
+
+/**
+ * Hide x402 Metadata from the Editable Custom Fields Box
+ */
+add_filter( 'woocommerce_hidden_order_itemmeta', 'x402_hide_order_item_meta' );
+add_filter( 'woocommerce_hidden_order_meta', 'x402_hide_order_item_meta' );
+function x402_hide_order_item_meta( $hidden_meta ) {
+    $hidden_meta[] = 'x402_transaction_id';
+    $hidden_meta[] = 'chain';
+    $hidden_meta[] = 'walletAddress';
+    return $hidden_meta;
+}
+
 function x402_get_products( $data ) {
     $params = $data->get_params();
     $args = array(
@@ -316,6 +351,17 @@ function x402_create_order( $data ) {
         }
         if ( ! empty( $params['shipping'] ) ) {
             $order->set_address( $params['shipping'], 'shipping' );
+        }
+
+        // Add Shipping Lines
+        if ( ! empty( $params['shipping_lines'] ) && is_array( $params['shipping_lines'] ) ) {
+            foreach ( $params['shipping_lines'] as $shipping_line ) {
+                $item = new WC_Order_Item_Shipping();
+                $item->set_method_title( isset( $shipping_line['method_title'] ) ? $shipping_line['method_title'] : 'Flat Rate' );
+                $item->set_method_id( isset( $shipping_line['method_id'] ) ? $shipping_line['method_id'] : 'flat_rate' );
+                $item->set_total( isset( $shipping_line['total'] ) ? $shipping_line['total'] : 0 );
+                $order->add_item( $item );
+            }
         }
 
         // Set Payment Method

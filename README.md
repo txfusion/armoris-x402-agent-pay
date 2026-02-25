@@ -1,4 +1,4 @@
-# x402 Agent Gateway for WooCommerce
+# x402 Armoris Agent Pay
 
 This plugin connects your WooCommerce store to the x402 Agent Payment Gateway, enabling AI Agents to discover your store, negotiate quotes, and perform payments using the x402 protocol.
 

@@ -43,7 +43,7 @@ function x402_init_gateway_class() {
 
             $this->enabled    = $this->get_option( 'enabled' );
             $this->store_id   = $this->get_option( 'store_id' );
-            $this->gateway_url = 'https://api.armoris.io';
+            $this->gateway_url = $this->get_option( 'gateway_url', 'https://api.armoris.io' );
 
             add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
         }
@@ -61,6 +61,13 @@ function x402_init_gateway_class() {
                     'type'        => 'text',
                     'description' => 'The unique Store ID from your <a href="https://armoris.io/dashboard" target="_blank">Armoris Dashboard</a>.',
                     'default'     => '',
+                    'desc_tip'    => false,
+                ),
+                'gateway_url' => array(
+                    'title'       => 'Gateway URL',
+                    'type'        => 'text',
+                    'description' => 'The Armoris Gateway API URL. Leave default unless testing locally.',
+                    'default'     => 'https://api.armoris.io',
                     'desc_tip'    => false,
                 ),
                 'client_secret' => array(
@@ -112,7 +119,7 @@ function x402_inject_agent_meta() {
 
     $store_id = esc_attr( $settings['store_id'] );
     // Default gateway URL if not set
-    $gateway_url = ! empty( $settings['gateway_url'] ) ? esc_url( rtrim( $settings['gateway_url'], '/' ) ) : 'http://api.armoris.io/';
+    $gateway_url = ! empty( $settings['gateway_url'] ) ? esc_url( rtrim( $settings['gateway_url'], '/' ) ) : 'https://api.armoris.io';
     
     // Construct the context URL (ensure leading slash on path if needed, but here we append to base)
     $context_url = $gateway_url . '/proxy/context/' . $store_id;

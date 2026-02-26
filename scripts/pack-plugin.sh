@@ -3,8 +3,8 @@
 # Ensure we are in the project root
 cd "$(dirname "$0")/.."
 
-PLUGIN_DIR="woocommerce-x402"
-ZIP_FILE="woocommerce-x402.zip"
+PLUGIN_DIR="armoris-x402-for-woocommerce"
+ZIP_FILE="armoris-x402-for-woocommerce.zip"
 
 echo "Packing plugin into $ZIP_FILE..."
 

@@ -76,9 +76,9 @@ jobs:
           # Stage all modified files
           git add \
             package.json \
-            woocommerce-x402/woocommerce-x402.php \
-            woocommerce-x402/readme.txt \
-            woocommerce-x402/CHANGELOG.md
+            armoris-x402-for-woocommerce/armoris-x402-for-woocommerce.php \
+            armoris-x402-for-woocommerce/readme.txt \
+            armoris-x402-for-woocommerce/CHANGELOG.md
 
           git commit -m "chore: release v$VERSION"
 

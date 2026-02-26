@@ -5,7 +5,6 @@ Plugin URI: https://www.armoris.io/
 Description: Connects your WooCommerce store to the Armoris x402 Agent Pay Gateway. Adds metadata for AI agents and enables on-chain USDC payments via the x402 protocol.
 Version: 0.1.3
 Author: Armoris Team
-Author URI: https://www.armoris.io/
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: armoris-x402-for-woocommerce

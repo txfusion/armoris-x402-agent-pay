@@ -1,14 +1,14 @@
 <?php
 /*
-Plugin Name: Armoris x402 Agent Payment
+Plugin Name: Armoris x402 Agent Pay
 Plugin URI: https://www.armoris.io/
-Description: Connects your WooCommerce store to the Armoris x402 Agent Payment Gateway. Adds metadata for AI agents and enables on-chain USDC payments via the x402 protocol.
+Description: Connects your WooCommerce store to the Armoris x402 Agent Pay Gateway. Adds metadata for AI agents and enables on-chain USDC payments via the x402 protocol.
 Version: 0.1.2
 Author: Armoris Team
 Author URI: https://www.armoris.io/
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: x402-agent-payment
+Text Domain: armoris-x402-for-woocommerce
 Domain Path: /languages
 */
 
@@ -31,7 +31,7 @@ function x402_init_gateway_class() {
             $this->id = 'x402';
             $this->icon = ''; // TODO: Add icon functionality
             $this->has_fields = false;
-            $this->method_title = 'Armoris x402 Agent Payment';
+            $this->method_title = 'Armoris x402 Agent Pay';
             $this->method_description = 'Accept payments from AI Agents via the x402 Protocol using USDC on-chain.';
 
             $this->init_form_fields();
@@ -53,7 +53,7 @@ function x402_init_gateway_class() {
                 'enabled' => array(
                     'title'   => 'Enable/Disable',
                     'type'    => 'checkbox',
-                    'label'   => 'Enable Armoris x402 Agent Payments',
+                    'label'   => 'Enable Armoris x402 Agent Pay',
                     'default' => 'yes',
                 ),
                 'store_id' => array(
@@ -84,7 +84,7 @@ function x402_init_gateway_class() {
             $order = wc_get_order( $order_id );
             
             // Mark as on-hold (we're waiting for payment)
-            $order->update_status( 'on-hold', __( 'Awaiting x402 Agent payment.', 'x402-gateway' ) );
+            $order->update_status( 'on-hold', __( 'Awaiting x402 Agent payment.', 'armoris-x402-for-woocommerce' ) );
 
             // Return thank you redirect
             return array(
@@ -124,12 +124,12 @@ function x402_inject_agent_meta() {
     // Construct the context URL (ensure leading slash on path if needed, but here we append to base)
     $context_url = $gateway_url . '/proxy/context/' . $store_id;
 
-    echo '<meta name="x402:store_id" content="' . $store_id . '" />' . "\n";
-    echo '<meta name="x402:gateway_url" content="' . $gateway_url . '" />' . "\n";
-    echo '<meta name="x402:context_url" content="' . $context_url . '" />' . "\n";
+    echo '<meta name="x402:store_id" content="' . esc_attr( $store_id ) . '" />' . "\n";
+    echo '<meta name="x402:gateway_url" content="' . esc_url( $gateway_url ) . '" />' . "\n";
+    echo '<meta name="x402:context_url" content="' . esc_url( $context_url ) . '" />' . "\n";
     
     // Optionally add a link tag for discovery
-    echo '<link rel="x402-agent-context" href="' . $context_url . '" />' . "\n";
+    echo '<link rel="x402-agent-context" href="' . esc_url( $context_url ) . '" />' . "\n";
 }
 
 /**
@@ -402,30 +402,23 @@ function x402_get_context() {
     // Get Allowed Countries
     $countries = WC()->countries->get_allowed_countries();
     
-    // Get Featured Products (Limit 5)
-    $featured_query = new WP_Query( array(
-        'post_type' => 'product',
-        'posts_per_page' => 5,
-        'tax_query' => array( array(
-            'taxonomy' => 'product_visibility',
-            'field'    => 'name',
-            'terms'    => 'featured',
-        ) ),
-    ) );
-    
+    // Get Featured Products (Limit 5) using WooCommerce API to avoid slow tax_query.
+    $featured_ids     = wc_get_featured_product_ids();
+    $featured_ids     = array_slice( $featured_ids, 0, 5 );
     $featured_products = array();
-    while ( $featured_query->have_posts() ) {
-        $featured_query->the_post();
-        global $product;
+    foreach ( $featured_ids as $pid ) {
+        $product = wc_get_product( $pid );
+        if ( ! $product ) {
+            continue;
+        }
         $featured_products[] = array(
-            'id' => $product->get_id(),
-            'name' => $product->get_name(),
-            'sku' => $product->get_sku(),
+            'id'    => $product->get_id(),
+            'name'  => $product->get_name(),
+            'sku'   => $product->get_sku(),
             'price' => $product->get_price(),
             'image' => wp_get_attachment_url( $product->get_image_id() ),
         );
     }
-    wp_reset_postdata();
 
     return array(
         'store_name' => get_bloginfo( 'name' ),
@@ -447,7 +440,7 @@ function x402_get_quote( $data ) {
     
     // Initialize Session/Cart if not present (REST API context)
     if ( null === WC()->session ) {
-        $session_class = apply_filters( 'woocommerce_session_handler', 'WC_Session_Handler' );
+        $session_class = apply_filters( 'woocommerce_session_handler', 'WC_Session_Handler' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WooCommerce filter.
         WC()->session = new $session_class();
         WC()->session->init();
     }

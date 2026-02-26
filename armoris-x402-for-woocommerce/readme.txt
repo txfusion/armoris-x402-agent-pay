@@ -1,18 +1,18 @@
-=== Armoris x402 Agent Payment ===
+=== Armoris x402 Agent Pay ===
 Contributors: armoris
-Tags: woocommerce, payment gateway, ai agent, x402, crypto, usdc, stablecoin
+Tags: woocommerce, payment gateway, ai agent, x402, usdc
 Requires at least: 6.0
-Tested up to: 6.7
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 0.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Connect your WooCommerce store to the Armoris x402 Agent Payment Gateway, enabling AI agents to autonomously browse, quote, and purchase products using USDC on-chain.
+Connect your WooCommerce store to the Armoris x402 Gateway. Let AI agents browse, quote, and pay for products using USDC on-chain.
 
 == Description ==
 
-**Armoris x402 Agent Payment** bridges your WooCommerce store with the emerging AI-agent economy. Using the open [x402 protocol](https://x402.org), autonomous AI agents can discover your store, request price quotes, and settle payments directly on-chain — without human checkout friction.
+**Armoris x402 Agent Pay** bridges your WooCommerce store with the emerging AI-agent economy. Using the open [x402 protocol](https://x402.org), autonomous AI agents can discover your store, request price quotes, and settle payments directly on-chain — without human checkout friction.
 
 = How it works =
 
@@ -42,7 +42,7 @@ Connect your WooCommerce store to the Armoris x402 Agent Payment Gateway, enabli
 
 1. Upload/select the `woocommerce-x402` folder to the `/wp-content/plugins/` directory, or install the plugin through the Plugins screen directly.
 2. Activate the plugin through the **Plugins** screen in your admin panel.
-3. Navigate to **WooCommerce > Settings > Payments** and enable **x402 Agent Payment**.
+3. Navigate to **WooCommerce > Settings > Payments** and enable **x402 Agent Pay**.
 4. Enter your **Store ID** and **Client Secret** from your [Armoris Dashboard](https://armoris.io/dashboard).
 5. Set your **Armoris API Gateway URL** (default: `https://api.armoris.io`).
 6. Save settings. Your store is now discoverable by AI agents.
@@ -59,7 +59,7 @@ Currently supported networks include SKALE Base Mainnet and Base (Ethereum L2), 
 
 = Is this plugin compatible with other payment gateways? =
 
-Yes. The x402 Agent Payment method coexists with other WooCommerce payment gateways. Human customers can still check out using standard methods (credit card, PayPal, etc.).
+Yes. The x402 Agent Pay method coexists with other WooCommerce payment gateways. Human customers can still check out using standard methods (credit card, PayPal, etc.).
 
 = Does this expose any sensitive data publicly? =
 

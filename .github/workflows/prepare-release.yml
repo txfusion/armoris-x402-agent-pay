@@ -78,7 +78,8 @@ jobs:
             package.json \
             armoris-x402-for-woocommerce/armoris-x402-for-woocommerce.php \
             armoris-x402-for-woocommerce/readme.txt \
-            armoris-x402-for-woocommerce/CHANGELOG.md
+            armoris-x402-for-woocommerce/CHANGELOG.md \
+            armoris-x402-for-woocommerce/languages/
 
           git commit -m "chore: release v$VERSION"
 

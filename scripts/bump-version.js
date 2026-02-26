@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const version = process.argv[2];
-const pluginFile = path.join(__dirname, '../woocommerce-x402/woocommerce-x402.php');
+const pluginFile = path.join(__dirname, '../armoris-x402-for-woocommerce/armoris-x402-for-woocommerce.php');
 
 if (!version) {
     console.error('Please provide a version number');

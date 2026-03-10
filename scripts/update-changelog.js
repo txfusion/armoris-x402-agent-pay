@@ -19,7 +19,7 @@ if (!version || !rawChangelog) {
     process.exit(1);
 }
 
-const PLUGIN_DIR = path.join(__dirname, '../armoris-x402-for-woocommerce');
+const PLUGIN_DIR = path.join(__dirname, '../armoris-x402-agent-pay');
 const CHANGELOG_MD = path.join(PLUGIN_DIR, 'CHANGELOG.md');
 const README_TXT = path.join(PLUGIN_DIR, 'readme.txt');
 const README_STABLE = path.join(__dirname, '../readme.txt');

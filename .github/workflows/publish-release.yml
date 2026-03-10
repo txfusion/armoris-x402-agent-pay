@@ -38,5 +38,5 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
           target_commitish: ${{ github.sha }}
-          files: armoris-x402-for-woocommerce.zip
+          files: armoris-x402-agent-pay.zip
           generate_release_notes: true
